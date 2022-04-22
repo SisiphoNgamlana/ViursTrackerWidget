@@ -33,10 +33,10 @@ public class VirusViewModel extends AndroidViewModel {
     public VirusViewModel(@NonNull Application application) {
         super(application);
         workManager = WorkManager.getInstance(application);
-        savedWorkInfo= workManager.getWorkInfosByTagLiveData(TAG_OUTPUT);
+        savedWorkInfo = workManager.getWorkInfosByTagLiveData(TAG_OUTPUT);
     }
 
-    public void setOutputData(String outputData){
+    public void setOutputData(String outputData) {
         this.outputData = outputData;
     }
 
@@ -44,7 +44,11 @@ public class VirusViewModel extends AndroidViewModel {
         return outputData;
     }
 
-    void downloadJson(){
+    public LiveData<List<WorkInfo>> getSavedWorkInfo() {
+        return savedWorkInfo;
+    }
+
+    public void downloadJson() {
 
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -55,21 +59,21 @@ public class VirusViewModel extends AndroidViewModel {
                 ExistingWorkPolicy.REPLACE,
                 OneTimeWorkRequest.from(CleanupWorker.class));
 
-                OneTimeWorkRequest download = new OneTimeWorkRequest.Builder(DownloadJsonWorker.class)
-                        .setConstraints(constraints)
-                        .addTag(TAG_OUTPUT)
-                        .setInputData(createInputUrl())
-                        .build();
+        OneTimeWorkRequest download = new OneTimeWorkRequest.Builder(DownloadJsonWorker.class)
+                .setConstraints(constraints)
+                .addTag(TAG_OUTPUT)
+                .setInputData(createInputUrl())
+                .build();
 
-                continuation.then(download);
-                continuation.enqueue();
+        continuation.then(download);
+        continuation.enqueue();
     }
 
     void cancelWork() {
         workManager.cancelUniqueWork(JSON_PROCESSING_WORK_NAME);
     }
 
-    private Data createInputUrl(){
+    private Data createInputUrl() {
         Data.Builder builder = new Data.Builder();
         builder.putString(STRING_URL, API_URL);
 

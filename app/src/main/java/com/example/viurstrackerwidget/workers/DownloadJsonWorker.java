@@ -20,7 +20,7 @@ public class DownloadJsonWorker extends Worker {
     public Result doWork() {
         String inputUrl = getInputData().getString(STRING_URL);
         Data.Builder builder = new Data.Builder();
-        builder.putString( DATA_OUTPUT, VirusWorkerUtils.processJson(inputUrl));
+        builder.putString(DATA_OUTPUT, VirusWorkerUtils.processJson(inputUrl));
         Data outputData = builder.build();
 
         return Result.success(outputData);
