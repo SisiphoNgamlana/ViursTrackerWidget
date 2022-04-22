@@ -2,12 +2,20 @@ package com.example.viurstrackerwidget.data;
 
 import android.app.Application;
 
+import com.example.viurstrackerwidget.workers.CleanupWorker;
+import com.example.viurstrackerwidget.workers.DownloadJsonWorker;
+
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.work.Constraints;
 import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
@@ -38,6 +46,23 @@ public class VirusViewModel extends AndroidViewModel {
 
     void downloadJson(){
 
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        WorkContinuation continuation = workManager.beginUniqueWork(
+                JSON_PROCESSING_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                OneTimeWorkRequest.from(CleanupWorker.class));
+
+                OneTimeWorkRequest download = new OneTimeWorkRequest.Builder(DownloadJsonWorker.class)
+                        .setConstraints(constraints)
+                        .addTag(TAG_OUTPUT)
+                        .setInputData(createInputUrl())
+                        .build();
+
+                continuation.then(download);
+                continuation.enqueue();
     }
 
     void cancelWork() {
